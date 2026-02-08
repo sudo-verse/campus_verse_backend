@@ -43,7 +43,9 @@ requestRouter.post("/request/send/:status/:id", auth, async (req, res) => {
     res.send("Sent");
     (async () => {
       try {
-        const sesRes = await sendEmail.run();
+        const subject = `New Connection Request from ${req.user.name}`;
+        const body = `${req.user.name} is ${status} in connecting with you!`;
+        const sesRes = await sendEmail.run(subject, body, isToUserExist.email, req.user.email);
         console.log("SES Response:", sesRes);
       } catch (err) {
         console.error("Email failed:", err.message);

@@ -42,9 +42,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "i am a software developer",
     },
-    photoUrl:{
+    membershipType: {
       type: String,
-      default: "https://res.cloudinary.com/dboqkwvhv/image/upload/v1761372622/devashish_gcm794.jpg"
+    },
+    membershipStatus: {
+      type: String,
+      default: "inactive",
+    },
+    photoUrl: {
+      type: String,
     }
   },
   {

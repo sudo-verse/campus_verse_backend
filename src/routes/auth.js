@@ -2,11 +2,14 @@ const express = require("express");
 const authRouter = express.Router();
 const { validateSignupData } = require("../utils/validate");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const User = require("../models/user");
+const { sendVerificationEmail } = require("../utils/emailVerify");
 authRouter.post("/signup", async (req, res) => {
   try {
     validateSignupData(req);
     const { name, email, password, gender, about, photoUrl } = req.body;
+    const verificationToken = crypto.randomBytes(32).toString("hex");
     const passwordHash = await bcrypt.hash(password, 10);
     const user = new User({
       name,
@@ -14,10 +17,15 @@ authRouter.post("/signup", async (req, res) => {
       password: passwordHash,
       gender,
       about,
-      photoUrl
+      photoUrl,
+      isVerified: false,
+      verificationToken
     });
     await user.save();
-    res.send("User created successfully");
+    const verifyLink = `https://campusverse.duckdns.org/verify-email/${verificationToken}`;
+
+    await sendVerificationEmail(email, verifyLink);
+    res.send("Signup successful. Please check your email to verify your account.");
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -27,6 +35,9 @@ authRouter.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).send("Invalid Credentials");
+    if (!user.isVerified) {
+      return res.status(403).send("Please verify your email first");
+    }
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
       const token = await user.getJWT();
@@ -44,4 +55,28 @@ authRouter.delete("/logout", (req, res) => {
   res.clearCookie("token");
   res.send("logout successful");
 });
+authRouter.get("/verify-email/:token", async (req, res) => {
+  const { token } = req.params;
+
+  const user = await User.findOne({ verificationToken: token });
+
+  if (!user) {
+    return res.status(400).send("Invalid or expired link");
+  }
+
+  user.isVerified = true;
+  user.verificationToken = undefined;
+  await user.save();
+
+  res.redirect("https://campusverse.duckdns.org/login");
+});
+authRouter.get("/test-email", async (req, res) => {
+  await sendVerificationEmail(
+    "ashishkrgupta.hajipur@gmail.com",
+    "https://example.com"
+  );
+  res.send("Email attempted");
+});
+
+
 module.exports = authRouter;

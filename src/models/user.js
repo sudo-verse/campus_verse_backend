@@ -19,7 +19,14 @@ const userSchema = new mongoose.Schema(
           throw new Error("email is invalid");
         }
       },
+
     },
+    isVerified: {
+      type: Boolean,
+      default: false
+    },
+
+    verificationToken: String,
     password: {
       type: String,
       required: true,
@@ -51,6 +58,7 @@ const userSchema = new mongoose.Schema(
     },
     photoUrl: {
       type: String,
+
     }
   },
   {

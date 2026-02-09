@@ -1,0 +1,43 @@
+const nodemailer = require("nodemailer");
+const { google } = require("googleapis");
+
+const OAuth2 = google.auth.OAuth2;
+
+const oauth2Client = new OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    "https://developers.google.com/oauthplayground"
+);
+
+oauth2Client.setCredentials({
+    refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+});
+
+const sendVerificationEmail = async (email, link) => {
+    const accessToken = await oauth2Client.getAccessToken();
+
+    const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            type: "OAuth2",
+            user: process.env.EMAIL_USER,
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+            accessToken: accessToken.token,
+        },
+    });
+
+    await transporter.sendMail({
+        from: `"CampusVerse" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: "Verify your email",
+        html: `
+      <h2>Verify your email</h2>
+      <p>Click the link below to verify your account:</p>
+      <a href="${link}">${link}</a>
+    `,
+    });
+};
+
+module.exports = { sendVerificationEmail };

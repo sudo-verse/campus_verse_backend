@@ -40,8 +40,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       validate(value) {
-        if (["male", "female", "other"].includes(value) === false) {
-          throw new Error("gender must be male,female or other");
+        if (["Male", "Female", "Other"].includes(value) === false) {
+          throw new Error("gender must be Male,Female or Other");
         }
       },
     },

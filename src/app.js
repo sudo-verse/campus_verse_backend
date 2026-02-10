@@ -50,7 +50,7 @@ connectDb()
   .then(() => {
     console.log("DataBase Connected Successfully");
     const PORT = process.env.PORT || 7776;
-    server.listen(PORT, () => {
+    server.listen(PORT, "0.0.0.0", () => {
       console.log(`app is running at port ${PORT}`);
     });
   })

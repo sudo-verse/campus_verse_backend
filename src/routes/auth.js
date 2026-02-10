@@ -22,7 +22,7 @@ authRouter.post("/signup", async (req, res) => {
       verificationToken
     });
     await user.save();
-    const verifyLink = `https://campusverse.duckdns.org/verify-email/${verificationToken}`;
+    const verifyLink = `https://campusverse.duckdns.org/api/auth/verify-email/${verificationToken}`;
 
     await sendVerificationEmail(email, verifyLink);
     res.send("Signup successful. Please check your email to verify your account.");
@@ -59,7 +59,6 @@ authRouter.get("/verify-email/:token", async (req, res) => {
   const { token } = req.params;
 
   const user = await User.findOne({ verificationToken: token });
-
   if (!user) {
     return res.status(400).send("Invalid or expired link");
   }
@@ -69,13 +68,6 @@ authRouter.get("/verify-email/:token", async (req, res) => {
   await user.save();
 
   res.redirect("https://campusverse.duckdns.org/login");
-});
-authRouter.get("/test-email", async (req, res) => {
-  await sendVerificationEmail(
-    "ashishkrgupta.hajipur@gmail.com",
-    "https://example.com"
-  );
-  res.send("Email attempted");
 });
 
 

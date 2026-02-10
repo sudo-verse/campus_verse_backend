@@ -4,11 +4,10 @@ const Message = require("../models/message");
 const initialSocket = (server) => {
     const io = SocketIO(server, {
         cors: {
-            origin: [
-                "http://localhost:5173",
-                "http://127.0.0.1:5173",
-                process.env.FRONTEND_URL
-            ].filter(Boolean),
+            origin: (origin, callback) => {
+                console.log("SocketIO connection attempt from origin:", origin);
+                callback(null, true);
+            },
             methods: ["GET", "POST"],
             credentials: true,
         },

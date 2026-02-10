@@ -6,11 +6,19 @@ const initialSocket = (server) => {
         cors: {
             origin: (origin, callback) => {
                 console.log("SocketIO connection attempt from origin:", origin);
+                // Allow requests with no origin (like mobile apps or curl requests)
+                if (!origin) return callback(null, true);
                 callback(null, true);
             },
             methods: ["GET", "POST"],
             credentials: true,
         },
+    });
+
+    // Debug connection errors
+    io.engine.on("connection_error", (err) => {
+        console.log("Socket Connection Error:", err.req.url);
+        console.log("Error details:", err.code, err.message, err.context);
     });
     io.on("connection", (socket) => {
         console.log("a user connected", socket.id);

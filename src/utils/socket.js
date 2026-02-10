@@ -4,14 +4,8 @@ const Message = require("../models/message");
 const initialSocket = (server) => {
     const io = SocketIO(server, {
         cors: {
-            origin: (origin, callback) => {
-                console.log("SocketIO connection attempt from origin:", origin);
-                // Allow requests with no origin (like mobile apps or curl requests)
-                if (!origin) return callback(null, true);
-                callback(null, true);
-            },
+            origin: "https://campusverse.duckdns.org",
             methods: ["GET", "POST"],
-            credentials: true,
         },
     });
 

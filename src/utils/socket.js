@@ -4,7 +4,11 @@ const Message = require("../models/message");
 const initialSocket = (server) => {
     const io = SocketIO(server, {
         cors: {
-            origin: "*",
+            origin: [
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                process.env.FRONTEND_URL
+            ].filter(Boolean),
             methods: ["GET", "POST"],
             credentials: true,
         },

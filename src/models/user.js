@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       validate(value) {
         if (["Male", "Female", "Other"].includes(value) === false) {
-          throw new Error("gender must be Male,Female or Other");
+          throw new Error("Gender must be Male,Female or Other");
         }
       },
     },

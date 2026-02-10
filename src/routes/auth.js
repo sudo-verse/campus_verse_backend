@@ -22,7 +22,7 @@ authRouter.post("/signup", async (req, res) => {
       verificationToken
     });
     await user.save();
-    const verifyLink = `https://campusverse.duckdns.org/api/auth/verify-email/${verificationToken}`;
+    const verifyLink = `https://campusverse.duckdns.org/api/verify-email/${verificationToken}`;
 
     await sendVerificationEmail(email, verifyLink);
     res.send("Signup successful. Please check your email to verify your account.");

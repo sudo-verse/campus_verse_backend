@@ -59,7 +59,7 @@ requestRouter.post("/request/send/:status/:id", auth, async (req, res) => {
 requestRouter.post("/request/review/:status/:id", auth, async (req, res) => {
   try {
     const loginUserId = req.user._id;
-    const { id: fromUserId, status } = req.params;
+    const { id: requestId, status } = req.params;
 
     const allowedStatus = ["accepted", "rejected"];
     if (!allowedStatus.includes(status)) {
@@ -67,12 +67,12 @@ requestRouter.post("/request/review/:status/:id", auth, async (req, res) => {
     }
 
     const request = await connectionRequest.findOne({
-      fromUserId,
+      _id: requestId,
       toUserId: loginUserId,
       status: "interested",
     });
-
     if (!request) {
+      console.log("Request not found with:", { requestId, toUserId: loginUserId, status: "interested" });
       return res.status(400).send("No such request found");
     }
 

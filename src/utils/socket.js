@@ -7,7 +7,11 @@ const connectedUsers = new Map();
 const initialSocket = (server) => {
     const io = SocketIO(server, {
         cors: {
-            origin: "https://campusverse.duckdns.org",
+            origin: [
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+                "https://campusverse.duckdns.org",
+            ],
             methods: ["GET", "POST"],
         },
     });

@@ -21,15 +21,28 @@ const initialSocket = (server) => {
         console.log("Socket Connection Error:", err.req.url);
         console.log("Error details:", err.code, err.message, err.context);
     });
+    // Helper to broadcast online user IDs to all clients
+    const broadcastOnlineUsers = () => {
+        const onlineUserIds = Array.from(connectedUsers.keys());
+        io.emit("onlineUsers", onlineUserIds);
+    };
+
     io.on("connection", (socket) => {
         console.log("a user connected", socket.id);
 
-        // ── Register user for call routing ──
+        // ── Register user for call routing + online status ──
         socket.on("registerUser", (userId) => {
             if (userId) {
                 connectedUsers.set(userId, socket.id);
                 console.log(`📞 User registered: ${userId} → ${socket.id}`);
+                broadcastOnlineUsers();
             }
+        });
+
+        // ── Client requests current online users ──
+        socket.on("getOnlineUsers", () => {
+            const onlineUserIds = Array.from(connectedUsers.keys());
+            socket.emit("onlineUsers", onlineUserIds);
         });
 
         socket.on("joinChat", async (userId, id) => {
@@ -55,6 +68,7 @@ const initialSocket = (server) => {
                     break;
                 }
             }
+            broadcastOnlineUsers();
         });
 
         socket.on("sendMessage", async (userId, id, message) => {
@@ -71,6 +85,20 @@ const initialSocket = (server) => {
                 text: message,
                 createdAt: new Date()
             });
+        });
+
+        socket.on("sendMedia", async (userId, id, mediaUrl, mediaType, caption) => {
+            const roomId = [userId, id].sort().join("_");
+            console.log("Media:", userId, id, mediaType, mediaUrl);
+            const msgData = {
+                text: caption || "",
+                mediaUrl,
+                mediaType,
+                sender: userId,
+                createdAt: new Date()
+            };
+            socket.broadcast.to(roomId).emit("receiveMessage", msgData);
+            await Message.create({ roomId, ...msgData });
         });
 
         socket.on("typing", (userId, id) => {

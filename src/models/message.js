@@ -3,7 +3,9 @@ const mongoose = require("mongoose");
 const messageSchema = new mongoose.Schema({
     roomId: { type: String, required: true },
     sender: { type: String, required: true },
-    text: { type: String, required: true },
+    text: { type: String, default: "" },
+    mediaUrl: { type: String, default: null },
+    mediaType: { type: String, default: null }, // "image" | "video" | "file"
     timestamp: { type: Date, default: Date.now }
 })
 

@@ -4,6 +4,8 @@ const requestRouter = express.Router();
 const connectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 const sendEmail = require("../utils/sendEmail");
+const notificationHub = require("../services/notificationHub");
+const { ConnectionRequestNotification } = require("../notifications");
 
 requestRouter.post("/request/send/:status/:id", auth, async (req, res) => {
   try {
@@ -41,6 +43,19 @@ requestRouter.post("/request/send/:status/:id", auth, async (req, res) => {
 
     // ✅ Send response ONCE
     res.send("Sent");
+
+    if (status === "interested") {
+      const notifier = notificationHub.get();
+      notifier?.dispatch(
+        new ConnectionRequestNotification({
+          recipientId: String(toUserId),
+          senderId: String(fromUserId),
+          senderName: req.user.name,
+          status: "interested",
+        })
+      );
+    }
+
     (async () => {
       try {
         const subject = `New Connection Request from ${req.user.name}`;
@@ -78,6 +93,18 @@ requestRouter.post("/request/review/:status/:id", auth, async (req, res) => {
 
     request.status = status;
     const data = await request.save();
+
+    if (status === "accepted") {
+      const notifier = notificationHub.get();
+      notifier?.dispatch(
+        new ConnectionRequestNotification({
+          recipientId: String(request.fromUserId),
+          senderId: String(loginUserId),
+          senderName: req.user.name,
+          status: "accepted",
+        })
+      );
+    }
 
     return res.json({
       message: `Request ${status} successfully`,

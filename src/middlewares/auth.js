@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+const tokenService = require("../services/TokenService");
 const User = require("../models/user");
 
 const auth = async (req, res, next) => {
@@ -7,7 +7,7 @@ const auth = async (req, res, next) => {
     if (!token) {
       throw new Error("Authentication Invalid");
     }
-    const decode = jwt.verify(token, process.env.JWT_SECRET);
+    const decode = tokenService.verify(token);
     const user = await User.findById(decode.id);
     if (!user) {
       throw new Error("Authentication Invalid");

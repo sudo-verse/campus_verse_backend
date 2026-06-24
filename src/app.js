@@ -32,6 +32,7 @@ const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const paymentRouter = require("./routes/payment");
+const notificationRouter = require("./routes/notification");
 const initialSocket = require("./utils/socket");
 
 const server = createServer(app);
@@ -42,6 +43,7 @@ app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
 app.use("/", paymentRouter);
+app.use("/", notificationRouter);
 
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
